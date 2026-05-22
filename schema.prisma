@@ -1,0 +1,58 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider  = "prisma-client-py"
+  interface = "asyncio"
+}
+
+model TestRun {
+  id             Int            @id @default(autoincrement())
+  filename       String
+  total          Int
+  status         String         @default("completed")
+  createdAt      DateTime       @default(now())
+  results        TestResult[]
+  executionRuns  ExecutionRun[]
+}
+
+model TestResult {
+  id             Int      @id @default(autoincrement())
+  runId          Int
+  run            TestRun  @relation(fields: [runId], references: [id])
+  title          String
+  steps          String
+  expectedResult String
+  type           String
+  createdAt      DateTime @default(now())
+}
+
+model ExecutionRun {
+  id               Int               @id @default(autoincrement())
+  runId            Int
+  run              TestRun           @relation(fields: [runId], references: [id])
+  baseUrl          String
+  total            Int
+  executed         Int
+  passed           Int
+  failed           Int
+  notRun           Int
+  stoppedEarly     Boolean           @default(false)
+  createdAt        DateTime          @default(now())
+  executionResults ExecutionResult[]
+}
+
+model ExecutionResult {
+  id             Int          @id @default(autoincrement())
+  executionRunId Int
+  executionRun   ExecutionRun @relation(fields: [executionRunId], references: [id])
+  title          String
+  passed         Boolean
+  type           String
+  expectedResult String
+  agentOutput    String
+  stepResults    String       // JSON blob — same pattern as TestResult.steps
+  createdAt      DateTime     @default(now())
+}
