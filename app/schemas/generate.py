@@ -13,5 +13,6 @@ class GenerateTestResponse(BaseModel):
     run_id: int
     filename: str
     total: int
-    context_used: bool = False  # lets the caller know if context tuning was applied
+    source: str           # "document", "wireframe", or "document + wireframe"
+    context_used: bool = False
     test_cases: List[TestCase]
